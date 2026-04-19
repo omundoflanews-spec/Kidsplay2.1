@@ -1,0 +1,229 @@
+<!DOCTYPE html><html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids Play 2 FINAL</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial;background:linear-gradient(135deg,#00E5FF,#FF007F);padding:12px}
+.container{max-width:480px;margin:auto;background:#fff;border-radius:25px;padding:15px}
+.menu{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.btn{flex:1;padding:10px;border:none;border-radius:20px;background:#444;color:#fff;font-weight:bold}
+.btn.ativo{background:#ff5722}
+.jogo{display:none}
+.jogo.ativo{display:block}
+h2{text-align:center;margin:10px 0}
+.status{text-align:center;margin:8px 0;font-weight:bold}
+.tabuleiro{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.celula{height:90px;background:#eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:2rem}
+.letras{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.letras button{width:34px;height:34px;border:none;background:#667eea;color:#fff;border-radius:8px}
+canvas{background:#eee;border-radius:10px;display:block;margin:auto}
+.puzzle{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.peca{height:80px;background:#2196f3;color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.vazio{background:#ccc}
+.damas{display:grid;grid-template-columns:repeat(8,1fr);gap:2px}
+.casa{aspect-ratio:1;display:flex;align-items:center;justify-content:center}
+.escura{background:#8B4513}
+.clara{background:#DEB887}
+.sel{outline:2px solid yellow}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="menu">
+<button class="btn ativo" onclick="trocar('velha',this)">Velha</button>
+<button class="btn" onclick="trocar('forca',this)">Forca</button>
+<button class="btn" onclick="trocar('puzzle',this)">Puzzle</button>
+<button class="btn" onclick="trocar('damas',this)">Damas</button>
+</div><div id="velha" class="jogo ativo">
+<h2>Velha</h2>
+<div id="v" class="tabuleiro"></div>
+<div id="vs" class="status"></div>
+</div><div id="forca" class="jogo">
+<h2>Forca</h2>
+<canvas id="c" width="200" height="150"></canvas>
+<div id="palavra" class="status"></div>
+<div id="teclado" class="letras"></div>
+<div id="msg" class="status"></div>
+</div><div id="puzzle" class="jogo">
+<h2>Puzzle</h2>
+<div id="p" class="puzzle"></div>
+</div><div id="damas" class="jogo">
+<h2>Damas PRO</h2>
+<div id="d" class="damas"></div>
+<div id="dmsg" class="status"></div>
+</div>
+</div><script>
+function msgVitoria(el){el.innerText='PARABÉNS, VC AGORA É UM JUSA';}
+
+function trocar(id,el){
+ document.querySelectorAll('.jogo').forEach(j=>j.classList.remove('ativo'));
+ document.getElementById(id).classList.add('ativo');
+ document.querySelectorAll('.btn').forEach(b=>b.classList.remove('ativo'));
+ el.classList.add('ativo');
+}
+
+// ===== VELHA =====
+let velha=['','','','','','','','',''],vez='X',fim=false;
+function desenharVelha(){
+ let g=document.getElementById('v');g.innerHTML='';
+ velha.forEach((v,i)=>{
+  let d=document.createElement('div');d.className='celula';d.innerText=v;
+  d.onclick=()=>{
+   if(v!==''||fim)return;
+   velha[i]=vez;
+   if(vitoria(vez)){msgVitoria(document.getElementById('vs'));fim=true;}
+   else vez=vez==='X'?'O':'X';
+   desenharVelha();
+  };
+  g.appendChild(d);
+ });
+}
+function vitoria(p){
+ return [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]
+ .some(c=>c.every(i=>velha[i]===p));
+}
+desenharVelha();
+
+// ===== FORCA =====
+let palavra='JAVASCRIPT',res=Array(palavra.length).fill('_'),erros=0;
+const ctx=document.getElementById('c').getContext('2d');
+function desenharForca(){
+ ctx.clearRect(0,0,200,150);
+ if(erros>0){ctx.fillRect(10,140,100,5);} 
+ if(erros>1){ctx.fillRect(20,20,5,120);} 
+ if(erros>2){ctx.fillRect(20,20,60,5);} 
+ if(erros>3){ctx.fillRect(80,20,5,20);} 
+ if(erros>4){ctx.beginPath();ctx.arc(82,50,10,0,Math.PI*2);ctx.stroke();}
+ if(erros>5){ctx.fillRect(80,60,5,30);} 
+ if(erros>6){ctx.beginPath();ctx.moveTo(80,70);ctx.lineTo(60,90);ctx.stroke();}
+ if(erros>7){ctx.beginPath();ctx.moveTo(80,70);ctx.lineTo(100,90);ctx.stroke();}
+ if(erros>8){ctx.beginPath();ctx.moveTo(80,90);ctx.lineTo(60,120);ctx.stroke();}
+ if(erros>9){ctx.beginPath();ctx.moveTo(80,90);ctx.lineTo(100,120);ctx.stroke();}
+}
+function atualizarForca(){document.getElementById('palavra').innerText=res.join(' ')}
+function teclado(){
+ let t=document.getElementById('teclado');t.innerHTML='';
+ 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(l=>{
+  let b=document.createElement('button');b.innerText=l;
+  b.onclick=()=>{
+   b.disabled=true;
+   if(palavra.includes(l)) palavra.split('').forEach((c,i)=>{if(c===l)res[i]=l});
+   else{erros++;desenharForca();}
+   atualizarForca();
+   if(!res.includes('_')) msgVitoria(document.getElementById('msg'));
+   if(erros>=10) document.getElementById('msg').innerText='Perdeu!';
+  };
+  t.appendChild(b);
+ });
+}
+atualizarForca();teclado();desenharForca();
+
+// ===== PUZZLE =====
+let pu=[1,2,3,4,5,6,7,8,0];
+function desenharPuzzle(){
+ let g=document.getElementById('p');g.innerHTML='';
+ pu.forEach((n,i)=>{
+  let d=document.createElement('div');d.className='peca';
+  if(n===0){d.classList.add('vazio');d.innerText='';}
+  else d.innerText=n;
+  d.onclick=()=>{
+   let z=pu.indexOf(0);
+   let l1=Math.floor(i/3),c1=i%3,l2=Math.floor(z/3),c2=z%3;
+   if(Math.abs(l1-l2)+Math.abs(c1-c2)===1){
+    [pu[i],pu[z]]=[pu[z],pu[i]];
+    desenharPuzzle();
+    if(pu.join()==='1,2,3,4,5,6,7,8,0') msgVitoria(document.getElementById('p'));
+   }
+  };
+  g.appendChild(d);
+ });
+}
+desenharPuzzle();
+
+// ===== DAMAS =====
+let bd=[],sel=null,turno='p';
+function initD(){
+ bd=[];
+ for(let i=0;i<8;i++){
+  bd[i]=[];
+  for(let j=0;j<8;j++){
+   if((i+j)%2){
+    if(i<3)bd[i][j]='b';
+    else if(i>4)bd[i][j]='p';
+    else bd[i][j]=null;
+   } else bd[i][j]=null;
+  }
+ }
+}
+
+function drawD(){
+ let g=document.getElementById('d');g.innerHTML='';
+ for(let i=0;i<8;i++)for(let j=0;j<8;j++){
+  let c=document.createElement('div');
+  c.className='casa '+((i+j)%2?'escura':'clara');
+  if(bd[i][j]==='p')c.innerText='🔴';
+  if(bd[i][j]==='b')c.innerText='⚫';
+  if(bd[i][j]==='P')c.innerText='👑';
+  if(sel&&sel[0]===i&&sel[1]===j)c.classList.add('sel');
+  c.onclick=()=>clickD(i,j);
+  g.appendChild(c);
+ }
+}
+
+function virarDama(){
+ for(let j=0;j<8;j++){
+  if(bd[0][j]==='p')bd[0][j]='P';
+  if(bd[7][j]==='b')bd[7][j]='B';
+ }
+}
+
+function capturarBot(){
+ for(let i=0;i<8;i++)for(let j=0;j<8;j++){
+  if(bd[i][j]==='b'){
+   let dirs=[[1,1],[1,-1],[-1,1],[-1,-1]];
+   for(let [dx,dy] of dirs){
+    let i1=i+dx,j1=j+dy,i2=i+2*dx,j2=j+2*dy;
+    if(bd[i1]&&bd[i2]&&bd[i1][j1]==='p'&&bd[i2][j2]==null){
+      bd[i2][j2]='b';bd[i][j]=null;bd[i1][j1]=null;return true;
+    }
+   }
+  }
+ }
+ return false;
+}
+
+function clickD(i,j){
+ if(turno!=='p')return;
+ if(!sel){if(bd[i][j]==='p'||bd[i][j]==='P'){sel=[i,j];drawD();}}
+ else{
+  let [x,y]=sel;
+  if(Math.abs(i-x)===2&&Math.abs(j-y)===2){
+   let mx=(i+x)/2,my=(j+y)/2;
+   if(bd[mx][my]==='b'){bd[i][j]=bd[x][y];bd[x][y]=null;bd[mx][my]=null;sel=null;turno='b';drawD();setTimeout(bot,400);return;}
+  }
+  if(Math.abs(i-x)===1&&Math.abs(j-y)===1&&bd[i][j]==null){
+   bd[i][j]=bd[x][y];bd[x][y]=null;sel=null;turno='b';drawD();setTimeout(bot,400);return;
+  }
+  sel=null;drawD();
+ }
+ virarDama();
+}
+
+function bot(){
+ if(capturarBot()){turno='p';drawD();return;}
+ for(let i=0;i<8;i++)for(let j=0;j<8;j++){
+  if(bd[i][j]==='b'){
+   let ni=i+1;
+   if(bd[ni]&&bd[ni][j+1]==null){bd[ni][j+1]='b';bd[i][j]=null;turno='p';drawD();return;}
+   if(bd[ni]&&bd[ni][j-1]==null){bd[ni][j-1]='b';bd[i][j]=null;turno='p';drawD();return;}
+  }
+ }
+ turno='p';
+ virarDama();
+}
+
+initD();drawD();
+</script></body>
+</html>
