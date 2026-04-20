@@ -27,6 +27,8 @@ body{font-family:Arial;background:linear-gradient(135deg,#00E5FF,#FF007F);margin
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .forca-desenho{font-family:monospace;font-size:1.2rem;background:#f0f0f0;padding:15px;border-radius:10px;margin:10px 0;white-space:pre;text-align:center;line-height:1.4}
+.btn-reiniciar{background:#4CAF50;color:white;border:none;padding:8px 20px;border-radius:20px;cursor:pointer;font-size:14px;margin-top:10px}
+.btn-reiniciar:hover{background:#45a049}
 </style>
 
 </head>
@@ -45,6 +47,7 @@ body{font-family:Arial;background:linear-gradient(135deg,#00E5FF,#FF007F);margin
 <div id="velha" class="jogo ativo">
 <div id="velhaGrid" class="tabuleiro"></div>
 <div id="velhaStatus"></div>
+<button class="btn-reiniciar" onclick="reiniciarVelha()">🔄 Reiniciar</button>
 </div>
 
 <!-- FORCA -->
@@ -53,18 +56,21 @@ body{font-family:Arial;background:linear-gradient(135deg,#00E5FF,#FF007F);margin
 <div id="palavra" style="font-size:2rem;margin:20px;letter-spacing:10px"></div>
 <div id="letras" style="display:flex;flex-wrap:wrap;gap:5px;margin:20px 0"></div>
 <div id="forcaStatus"></div>
+<button class="btn-reiniciar" onclick="reiniciarForca()">🔄 Reiniciar</button>
 </div>
 
 <!-- PUZZLE -->
 <div id="puzzle" class="jogo">
 <div id="puzzleGrid" class="tabuleiro"></div>
 <div id="puzzleStatus"></div>
+<button class="btn-reiniciar" onclick="reiniciarPuzzle()">🔄 Reiniciar</button>
 </div>
 
 <!-- DAMAS -->
 <div id="damas" class="jogo">
 <div id="damasGrid" class="damas-grid"></div>
 <div id="damasStatus"></div>
+<button class="btn-reiniciar" onclick="reiniciarDamas()">🔄 Reiniciar</button>
 </div>
 
 </div>
@@ -108,12 +114,14 @@ function verificarVencedorVelha() {
         if(v[combo[0]] && v[combo[0]] === v[combo[1]] && v[combo[0]] === v[combo[2]]) {
             jogoAtivoVelha = false;
             mostrarVitoria(v[combo[0]]);
+            document.getElementById('velhaStatus').innerHTML = `<span style="color:green">${v[combo[0]]} venceu!</span>`;
             return true;
         }
     }
     if(v.every(c => c !== '')) {
         jogoAtivoVelha = false;
         mostrarVitoria('Empate');
+        document.getElementById('velhaStatus').innerHTML = `<span style="color:orange">Empate!</span>`;
         return true;
     }
     return false;
@@ -143,67 +151,34 @@ function drawV(){
   g.appendChild(d);
  });
 }
+
+function reiniciarVelha() {
+    v = ['','','','','','','','',''];
+    jogoAtivoVelha = true;
+    document.getElementById('velhaStatus').innerHTML = '';
+    drawV();
+}
+
 drawV();
 
 //////////////////////
-// FORCA COM DESENHO
+// FORCA
 let palavras = ['HTML', 'JAVA', 'PYTHON', 'JOGO', 'COMPUTADOR', 'PROGRAMAR', 'INTERNET', 'CODIGO'];
 let palavraSecreta = palavras[Math.floor(Math.random() * palavras.length)];
 let progresso = Array(palavraSecreta.length).fill('_');
 let tentativasRestantes = 6;
 let letrasUsadas = [];
+let forcaLetrasDiv = document.getElementById('letras');
 
 function desenhoForca(erros) {
     const desenhos = [
-        `  ------
-  |    |
-  |
-  |
-  |
-  |
-=========`,
-        `  ------
-  |    |
-  |    O
-  |
-  |
-  |
-=========`,
-        `  ------
-  |    |
-  |    O
-  |    |
-  |
-  |
-=========`,
-        `  ------
-  |    |
-  |    O
-  |   /|
-  |
-  |
-=========`,
-        `  ------
-  |    |
-  |    O
-  |   /|\\
-  |
-  |
-=========`,
-        `  ------
-  |    |
-  |    O
-  |   /|\\
-  |   /
-  |
-=========`,
-        `  ------
-  |    |
-  |    O
-  |   /|\\
-  |   / \\
-  |
-=========`
+        `  ------\n  |    |\n  |\n  |\n  |\n  |\n=========`,
+        `  ------\n  |    |\n  |    O\n  |\n  |\n  |\n=========`,
+        `  ------\n  |    |\n  |    O\n  |    |\n  |\n  |\n=========`,
+        `  ------\n  |    |\n  |    O\n  |   /|\n  |\n  |\n=========`,
+        `  ------\n  |    |\n  |    O\n  |   /|\\\n  |\n  |\n=========`,
+        `  ------\n  |    |\n  |    O\n  |   /|\\\n  |   /\n  |\n=========`,
+        `  ------\n  |    |\n  |    O\n  |   /|\\\n  |   / \\\n  |\n=========`
     ];
     return desenhos[erros] || desenhos[6];
 }
@@ -226,13 +201,7 @@ function desabilitarBotoesForca() {
     document.querySelectorAll('#letras button').forEach(b => b.disabled = true);
 }
 
-function reiniciarForca() {
-    palavraSecreta = palavras[Math.floor(Math.random() * palavras.length)];
-    progresso = Array(palavraSecreta.length).fill('_');
-    tentativasRestantes = 6;
-    letrasUsadas = [];
-    document.getElementById('forcaStatus').innerHTML = '';
-    atualizarForca();
+function criarBotoesForca() {
     forcaLetrasDiv.innerHTML = '';
     'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(l=>{
         let b=document.createElement('button');
@@ -256,12 +225,24 @@ function reiniciarForca() {
         forcaLetrasDiv.appendChild(b);
     });
 }
-let forcaLetrasDiv = document.getElementById('letras');
-reiniciarForca();
+
+function reiniciarForca() {
+    palavraSecreta = palavras[Math.floor(Math.random() * palavras.length)];
+    progresso = Array(palavraSecreta.length).fill('_');
+    tentativasRestantes = 6;
+    letrasUsadas = [];
+    document.getElementById('forcaStatus').innerHTML = '';
+    criarBotoesForca();
+    atualizarForca();
+}
+
+criarBotoesForca();
+atualizarForca();
 
 //////////////////////
-// PUZZLE CORRIGIDO
+// PUZZLE
 let pu = [];
+
 function gerarPuzzleSolucionavel() {
     let nums = [1,2,3,4,5,6,7,8,0];
     do {
@@ -290,7 +271,7 @@ function verificarVitoriaPuzzle() {
     }
     if(pu[8] !== 0) return false;
     mostrarVitoria('Jogador');
-    document.getElementById('puzzleStatus').innerHTML = '<span style="color:green;font-size:1.5rem">🎉 PUZZLE COMPLETO! 🎉</span>';
+    document.getElementById('puzzleStatus').innerHTML = '<span style="color:green;font-size:1.2rem">🎉 PUZZLE COMPLETO! 🎉</span>';
     return true;
 }
 
@@ -314,11 +295,17 @@ function drawP(){
  });
 }
 
+function reiniciarPuzzle() {
+    pu = gerarPuzzleSolucionavel();
+    document.getElementById('puzzleStatus').innerHTML = '';
+    drawP();
+}
+
 pu = gerarPuzzleSolucionavel();
 drawP();
 
 //////////////////////
-// DAMAS - Todas as peças podem capturar para trás
+// DAMAS
 let tab=[],sel=null,vez=true;
 
 function initD(){
@@ -350,10 +337,12 @@ function verificarVitoriaDamas() {
     let {pecasP, pecasB} = contarPecas();
     if(pecasP === 0) {
         mostrarVitoria('Bot (Preto)');
+        document.getElementById('damasStatus').innerHTML = '<span style="color:red">⚫ Bot venceu! ⚫</span>';
         return true;
     }
     if(pecasB === 0) {
         mostrarVitoria('Você (Vermelho)');
+        document.getElementById('damasStatus').innerHTML = '<span style="color:green">🔴 Você venceu! 🔴</span>';
         return true;
     }
     return false;
@@ -365,102 +354,72 @@ function coroarDama(i,j,peca) {
     return peca;
 }
 
-// Função de captura para DAMAS (captura em qualquer direção)
 function capturarDama(l, c, peca) {
     let capturas = [];
     let direcoes = [[-1,-1], [-1,1], [1,-1], [1,1]];
-    
     for(let d of direcoes) {
         let passo = 1;
         let encontrouOponente = false;
         let oponenteL, oponenteC;
-        
         while(true) {
             let nl = l + d[0] * passo;
             let nc = c + d[1] * passo;
-            
             if(nl < 0 || nl >= 8 || nc < 0 || nc >= 8) break;
-            
             if(tab[nl][nc] !== null) {
                 let ehOponente = false;
-                if(peca === 'P') {
-                    ehOponente = (tab[nl][nc] === 'b' || tab[nl][nc] === 'B');
-                } else if(peca === 'B') {
-                    ehOponente = (tab[nl][nc] === 'p' || tab[nl][nc] === 'P');
-                }
-                
+                if(peca === 'P') ehOponente = (tab[nl][nc] === 'b' || tab[nl][nc] === 'B');
+                if(peca === 'B') ehOponente = (tab[nl][nc] === 'p' || tab[nl][nc] === 'P');
                 if(!encontrouOponente && ehOponente) {
                     encontrouOponente = true;
                     oponenteL = nl;
                     oponenteC = nc;
-                } else {
-                    break;
-                }
+                } else break;
             } else if(encontrouOponente && tab[nl][nc] === null) {
                 capturas.push([nl, nc, oponenteL, oponenteC]);
                 break;
             } else if(!encontrouOponente && tab[nl][nc] === null) {
                 passo++;
                 continue;
-            } else {
-                break;
-            }
+            } else break;
             passo++;
         }
     }
     return capturas;
 }
 
-// Função de captura para peças normais (agora podem capturar para frente E para trás)
 function capturarNormal(l, c, peca) {
     let capturas = [];
-    // Todas as 4 direções diagonais
     let direcoes = [[-1,-1], [-1,1], [1,-1], [1,1]];
-    
     for(let d of direcoes) {
         let l1 = l + d[0];
         let c1 = c + d[1];
         let l2 = l + d[0] * 2;
         let c2 = c + d[1] * 2;
-        
         if(l2 >= 0 && l2 < 8 && c2 >= 0 && c2 < 8 && tab[l1] && tab[l1][c1] !== null) {
             let ehOponente = false;
-            if(peca === 'p') {
-                ehOponente = (tab[l1][c1] === 'b' || tab[l1][c1] === 'B');
-            } else if(peca === 'b') {
-                ehOponente = (tab[l1][c1] === 'p' || tab[l1][c1] === 'P');
-            }
-            
-            if(ehOponente && tab[l2][c2] === null) {
-                capturas.push([l2, c2, l1, c1]);
-            }
+            if(peca === 'p') ehOponente = (tab[l1][c1] === 'b' || tab[l1][c1] === 'B');
+            if(peca === 'b') ehOponente = (tab[l1][c1] === 'p' || tab[l1][c1] === 'P');
+            if(ehOponente && tab[l2][c2] === null) capturas.push([l2, c2, l1, c1]);
         }
     }
     return capturas;
 }
 
 function obterCapturas(l, c, peca) {
-    if(peca === 'P' || peca === 'B') {
-        return capturarDama(l, c, peca);
-    } else {
-        return capturarNormal(l, c, peca);
-    }
+    if(peca === 'P' || peca === 'B') return capturarDama(l, c, peca);
+    return capturarNormal(l, c, peca);
 }
 
-function movimentosDama(l, c, peca) {
+function movimentosDama(l, c) {
     let movs = [];
     let direcoes = [[-1,-1], [-1,1], [1,-1], [1,1]];
-    
     for(let d of direcoes) {
         for(let passo = 1; passo <= 7; passo++) {
             let nl = l + d[0] * passo;
             let nc = c + d[1] * passo;
             if(nl < 0 || nl >= 8 || nc < 0 || nc >= 8) break;
-            if(tab[nl][nc] === null) {
-                movs.push([nl, nc]);
-            } else {
-                break;
-            }
+            if(tab[nl][nc] === null) movs.push([nl, nc]);
+            else break;
         }
     }
     return movs;
@@ -468,7 +427,6 @@ function movimentosDama(l, c, peca) {
 
 function movimentosNormais(l, c, peca) {
     let movs = [];
-    // Peças normais só movem para frente (não para trás)
     if(peca === 'p') {
         if(l-1 >= 0 && c-1 >= 0 && tab[l-1][c-1] === null) movs.push([l-1, c-1]);
         if(l-1 >= 0 && c+1 < 8 && tab[l-1][c+1] === null) movs.push([l-1, c+1]);
@@ -480,22 +438,17 @@ function movimentosNormais(l, c, peca) {
 }
 
 function obterMovimentos(l, c, peca) {
-    if(peca === 'P' || peca === 'B') {
-        return movimentosDama(l, c, peca);
-    } else {
-        return movimentosNormais(l, c, peca);
-    }
+    if(peca === 'P' || peca === 'B') return movimentosDama(l, c);
+    return movimentosNormais(l, c, peca);
 }
 
-function existeCapturaParaJogador(tipo) {
-    for(let i = 0; i < 8; i++) {
+function existeCapturaParaJogador() {
+    for(let i = 0; i < 8; i++)
         for(let j = 0; j < 8; j++) {
             let peca = tab[i][j];
-            if(peca === tipo || (tipo === 'p' && peca === 'P') || (tipo === 'b' && peca === 'B')) {
+            if(peca === 'p' || peca === 'P')
                 if(obterCapturas(i, j, peca).length > 0) return true;
-            }
         }
-    }
     return false;
 }
 
@@ -505,7 +458,6 @@ function drawD(){
   for(let j=0;j<8;j++){
    let d=document.createElement('div');
    d.className='casa '+((i+j)%2?'escura':'clara');
-   
    let icone = document.createElement('span');
    icone.style.fontSize = '1.5rem';
    icone.style.display = 'flex';
@@ -513,12 +465,10 @@ function drawD(){
    icone.style.justifyContent = 'center';
    icone.style.width = '100%';
    icone.style.height = '100%';
-   
    if(tab[i][j]==='p') icone.innerText = '🔴';
    if(tab[i][j]==='b') icone.innerText = '⚫';
    if(tab[i][j]==='P') icone.innerText = '👑🔴';
    if(tab[i][j]==='B') icone.innerText = '👑⚫';
-   
    d.appendChild(icone);
    if(sel && sel[0]===i && sel[1]===j)d.classList.add('selecionada');
    d.onclick=()=>clickD(i,j);
@@ -530,10 +480,9 @@ function drawD(){
 function clickD(i,j){
  if(!vez) return;
  let pecaJogador = tab[i][j];
- 
  if(!sel){
    if(pecaJogador === 'p' || pecaJogador === 'P'){
-       let precisaCapturar = existeCapturaParaJogador('p');
+       let precisaCapturar = existeCapturaParaJogador();
        if(precisaCapturar){
            if(obterCapturas(i,j,pecaJogador).length > 0) sel=[i,j];
        } else {
@@ -542,12 +491,10 @@ function clickD(i,j){
    }
    drawD(); return;
  }
- 
- let [l,c] = sel;
+ let [l,c]=sel;
  let pecaSelecionada = tab[l][c];
  let capturas = obterCapturas(l, c, pecaSelecionada);
  let captura = capturas.find(x => x[0] === i && x[1] === j);
- 
  if(captura){
    tab[i][j] = pecaSelecionada;
    tab[l][c] = null;
@@ -562,16 +509,9 @@ function clickD(i,j){
    setTimeout(bot, 400);
    return;
  }
- 
- if(existeCapturaParaJogador('p')){ 
-   sel = null; 
-   drawD(); 
-   return; 
- }
- 
+ if(existeCapturaParaJogador()){ sel = null; drawD(); return; }
  let movimentos = obterMovimentos(l, c, pecaSelecionada);
  let movimentoValido = movimentos.some(m => m[0] === i && m[1] === j);
- 
  if(movimentoValido && tab[i][j] === null){
    tab[i][j] = pecaSelecionada;
    tab[l][c] = null;
@@ -588,64 +528,64 @@ function clickD(i,j){
 
 function bot(){
  if(vez) return;
- 
- // Verifica capturas do bot
- for(let i=0;i<8;i++) {
-   for(let j=0;j<8;j++){
-     let peca = tab[i][j];
-     if(peca === 'b' || peca === 'B'){
-         let capturas = obterCapturas(i, j, peca);
-         if(capturas.length > 0){
-             let m = capturas[0];
-             tab[m[0]][m[1]] = peca;
-             tab[i][j] = null;
-             tab[m[2]][m[3]] = null;
-             tab[m[0]][m[1]] = coroarDama(m[0], m[1], tab[m[0]][m[1]]);
-             vez = true;
-             drawD();
-             verificarVitoriaDamas();
-             if(obterCapturas(m[0], m[1], tab[m[0]][m[1]]).length > 0){
-                 vez = false;
-                 setTimeout(bot, 400);
-             }
-             return;
-         }
-     }
+ for(let i=0;i<8;i++) for(let j=0;j<8;j++){
+   let peca = tab[i][j];
+   if(peca === 'b' || peca === 'B'){
+       let capturas = obterCapturas(i, j, peca);
+       if(capturas.length > 0){
+           let m = capturas[0];
+           tab[m[0]][m[1]] = peca;
+           tab[i][j] = null;
+           tab[m[2]][m[3]] = null;
+           tab[m[0]][m[1]] = coroarDama(m[0], m[1], tab[m[0]][m[1]]);
+           vez = true;
+           drawD();
+           verificarVitoriaDamas();
+           if(obterCapturas(m[0], m[1], tab[m[0]][m[1]]).length > 0){
+               vez = false;
+               setTimeout(bot, 400);
+           }
+           return;
+       }
    }
  }
- 
- // Movimentos normais do bot
- for(let i=0;i<8;i++) {
-   for(let j=0;j<8;j++){
-     let peca = tab[i][j];
-     if(peca === 'b') {
-         let movs = movimentosNormais(i, j, peca);
-         if(movs.length > 0){
-             let m = movs[0];
-             tab[m[0]][m[1]] = peca;
-             tab[i][j] = null;
-             tab[m[0]][m[1]] = coroarDama(m[0], m[1], tab[m[0]][m[1]]);
-             vez = true;
-             drawD();
-             verificarVitoriaDamas();
-             return;
-         }
-     } else if(peca === 'B') {
-         let movs = movimentosDama(i, j, peca);
-         if(movs.length > 0){
-             let m = movs[0];
-             tab[m[0]][m[1]] = peca;
-             tab[i][j] = null;
-             vez = true;
-             drawD();
-             verificarVitoriaDamas();
-             return;
-         }
-     }
+ for(let i=0;i<8;i++) for(let j=0;j<8;j++){
+   let peca = tab[i][j];
+   if(peca === 'b') {
+       let movs = movimentosNormais(i, j, peca);
+       if(movs.length > 0){
+           let m = movs[0];
+           tab[m[0]][m[1]] = peca;
+           tab[i][j] = null;
+           tab[m[0]][m[1]] = coroarDama(m[0], m[1], tab[m[0]][m[1]]);
+           vez = true;
+           drawD();
+           verificarVitoriaDamas();
+           return;
+       }
+   } else if(peca === 'B') {
+       let movs = movimentosDama(i, j);
+       if(movs.length > 0){
+           let m = movs[0];
+           tab[m[0]][m[1]] = peca;
+           tab[i][j] = null;
+           vez = true;
+           drawD();
+           verificarVitoriaDamas();
+           return;
+       }
    }
  }
  vez = true;
  drawD();
+}
+
+function reiniciarDamas() {
+    initD();
+    sel = null;
+    vez = true;
+    document.getElementById('damasStatus').innerHTML = '';
+    drawD();
 }
 
 initD();
