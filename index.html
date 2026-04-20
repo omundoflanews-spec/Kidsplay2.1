@@ -1,62 +1,91 @@
-<!DOCTYPE html><html lang="pt-br">
+<!DOCTYPE html>
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kids Play 2 FINAL</title>
+<title>Kids Play 2</title>
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Arial;background:linear-gradient(135deg,#00E5FF,#FF007F);padding:12px}
-.container{max-width:480px;margin:auto;background:#fff;border-radius:25px;padding:15px}
-.menu{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.btn{flex:1;padding:10px;border:none;border-radius:20px;background:#444;color:#fff;font-weight:bold}
+body{font-family:Arial;background:linear-gradient(135deg,#00E5FF,#FF007F);margin:0;padding:10px}
+.container{max-width:500px;margin:auto;background:#fff;border-radius:20px;padding:15px}
+.menu{display:flex;gap:5px;margin-bottom:10px}
+.btn{flex:1;padding:10px;border:none;border-radius:20px;background:#555;color:#fff;cursor:pointer}
 .btn.ativo{background:#ff5722}
 .jogo{display:none}
 .jogo.ativo{display:block}
-h2{text-align:center;margin:10px 0}
-.status{text-align:center;margin:8px 0;font-weight:bold}
-.tabuleiro{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.celula{height:90px;background:#eee;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:2rem}
-.letras{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
-.letras button{width:34px;height:34px;border:none;background:#667eea;color:#fff;border-radius:8px}
-canvas{background:#eee;border-radius:10px;display:block;margin:auto}
-.puzzle{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.peca{height:80px;background:#2196f3;color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center}
-.vazio{background:#ccc}
-.damas{display:grid;grid-template-columns:repeat(8,1fr);gap:2px}
-.casa{aspect-ratio:1;display:flex;align-items:center;justify-content:center}
+.tabuleiro{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.celula{height:90px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:2rem;cursor:pointer}
+.damas-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;background:#2c2c2c;padding:5px;border-radius:10px;width:100%;max-width:500px;margin:0 auto}
+.casa{aspect-ratio:1;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.5rem;min-width:0;overflow:hidden}
 .escura{background:#8B4513}
 .clara{background:#DEB887}
-.sel{outline:2px solid yellow}
+.selecionada{outline:3px solid yellow;box-shadow:0 0 0 2px orange;border-radius:50%}
+.footer{text-align:center;color:#fff;margin-top:10px}
+.vitoria-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fadeIn 0.5s}
+.vitoria-mensagem{font-size:2.5rem;font-weight:bold;text-align:center;background:linear-gradient(45deg,#ff0,#ff6a00,#ff0,#ff00ff);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 1s infinite, bounce 0.5s;text-shadow:0 0 10px rgba(255,255,0,0.5);font-family:'Comic Sans MS',cursive}
+@keyframes shine{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.forca-desenho{font-family:monospace;font-size:1.2rem;background:#f0f0f0;padding:15px;border-radius:10px;margin:10px 0;white-space:pre;text-align:center;line-height:1.4}
 </style>
+
 </head>
 <body>
+
 <div class="container">
+
 <div class="menu">
 <button class="btn ativo" onclick="trocar('velha',this)">Velha</button>
 <button class="btn" onclick="trocar('forca',this)">Forca</button>
 <button class="btn" onclick="trocar('puzzle',this)">Puzzle</button>
 <button class="btn" onclick="trocar('damas',this)">Damas</button>
-</div><div id="velha" class="jogo ativo">
-<h2>Velha</h2>
-<div id="v" class="tabuleiro"></div>
-<div id="vs" class="status"></div>
-</div><div id="forca" class="jogo">
-<h2>Forca</h2>
-<canvas id="c" width="200" height="150"></canvas>
-<div id="palavra" class="status"></div>
-<div id="teclado" class="letras"></div>
-<div id="msg" class="status"></div>
-</div><div id="puzzle" class="jogo">
-<h2>Puzzle</h2>
-<div id="p" class="puzzle"></div>
-</div><div id="damas" class="jogo">
-<h2>Damas PRO</h2>
-<div id="d" class="damas"></div>
-<div id="dmsg" class="status"></div>
 </div>
-</div><script>
-function msgVitoria(el){el.innerText='PARABÉNS, VC AGORA É UM JUSA';}
 
+<!-- VELHA -->
+<div id="velha" class="jogo ativo">
+<div id="velhaGrid" class="tabuleiro"></div>
+<div id="velhaStatus"></div>
+</div>
+
+<!-- FORCA -->
+<div id="forca" class="jogo">
+<div id="forcaDesenho" class="forca-desenho"></div>
+<div id="palavra" style="font-size:2rem;margin:20px;letter-spacing:10px"></div>
+<div id="letras" style="display:flex;flex-wrap:wrap;gap:5px;margin:20px 0"></div>
+<div id="forcaStatus"></div>
+</div>
+
+<!-- PUZZLE -->
+<div id="puzzle" class="jogo">
+<div id="puzzleGrid" class="tabuleiro"></div>
+<div id="puzzleStatus"></div>
+</div>
+
+<!-- DAMAS -->
+<div id="damas" class="jogo">
+<div id="damasGrid" class="damas-grid"></div>
+<div id="damasStatus"></div>
+</div>
+
+</div>
+
+<div class="footer">desenvolvido por Adriano Freitas</div>
+
+<script>
+
+function mostrarVitoria(jogador) {
+    let overlay = document.createElement('div');
+    overlay.className = 'vitoria-overlay';
+    let msg = document.createElement('div');
+    msg.className = 'vitoria-mensagem';
+    msg.innerText = `PARABÉNS, AGORA VC É UM JUSA! 🎉`;
+    overlay.appendChild(msg);
+    overlay.onclick = () => overlay.remove();
+    document.body.appendChild(overlay);
+    setTimeout(() => overlay.remove(), 3000);
+}
+
+// MENU
 function trocar(id,el){
  document.querySelectorAll('.jogo').forEach(j=>j.classList.remove('ativo'));
  document.getElementById(id).classList.add('ativo');
@@ -64,166 +93,565 @@ function trocar(id,el){
  el.classList.add('ativo');
 }
 
-// ===== VELHA =====
-let velha=['','','','','','','','',''],vez='X',fim=false;
-function desenharVelha(){
- let g=document.getElementById('v');g.innerHTML='';
- velha.forEach((v,i)=>{
-  let d=document.createElement('div');d.className='celula';d.innerText=v;
+//////////////////////
+// VELHA
+let v=['','','','','','','','',''];
+let jogoAtivoVelha = true;
+
+function verificarVencedorVelha() {
+    const combinacoes = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+    ];
+    for(let combo of combinacoes) {
+        if(v[combo[0]] && v[combo[0]] === v[combo[1]] && v[combo[0]] === v[combo[2]]) {
+            jogoAtivoVelha = false;
+            mostrarVitoria(v[combo[0]]);
+            return true;
+        }
+    }
+    if(v.every(c => c !== '')) {
+        jogoAtivoVelha = false;
+        mostrarVitoria('Empate');
+        return true;
+    }
+    return false;
+}
+
+function drawV(){
+ let g=document.getElementById('velhaGrid');g.innerHTML='';
+ v.forEach((c,i)=>{
+  let d=document.createElement('div');
+  d.className='celula';
+  d.innerText=c;
   d.onclick=()=>{
-   if(v!==''||fim)return;
-   velha[i]=vez;
-   if(vitoria(vez)){msgVitoria(document.getElementById('vs'));fim=true;}
-   else vez=vez==='X'?'O':'X';
-   desenharVelha();
+   if(!jogoAtivoVelha) return;
+   if(v[i]!=='')return;
+   v[i]='X';
+   drawV();
+   if(verificarVencedorVelha()) return;
+   setTimeout(()=>{
+    let e=v.map((c,i)=>c===''?i:null).filter(x=>x!==null);
+    if(e.length && jogoAtivoVelha){
+     v[e[Math.floor(Math.random()*e.length)]]='O';
+     drawV();
+     verificarVencedorVelha();
+    }
+   },300);
   };
   g.appendChild(d);
  });
 }
-function vitoria(p){
- return [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]
- .some(c=>c.every(i=>velha[i]===p));
-}
-desenharVelha();
+drawV();
 
-// ===== FORCA =====
-let palavra='JAVASCRIPT',res=Array(palavra.length).fill('_'),erros=0;
-const ctx=document.getElementById('c').getContext('2d');
-function desenharForca(){
- ctx.clearRect(0,0,200,150);
- if(erros>0){ctx.fillRect(10,140,100,5);} 
- if(erros>1){ctx.fillRect(20,20,5,120);} 
- if(erros>2){ctx.fillRect(20,20,60,5);} 
- if(erros>3){ctx.fillRect(80,20,5,20);} 
- if(erros>4){ctx.beginPath();ctx.arc(82,50,10,0,Math.PI*2);ctx.stroke();}
- if(erros>5){ctx.fillRect(80,60,5,30);} 
- if(erros>6){ctx.beginPath();ctx.moveTo(80,70);ctx.lineTo(60,90);ctx.stroke();}
- if(erros>7){ctx.beginPath();ctx.moveTo(80,70);ctx.lineTo(100,90);ctx.stroke();}
- if(erros>8){ctx.beginPath();ctx.moveTo(80,90);ctx.lineTo(60,120);ctx.stroke();}
- if(erros>9){ctx.beginPath();ctx.moveTo(80,90);ctx.lineTo(100,120);ctx.stroke();}
-}
-function atualizarForca(){document.getElementById('palavra').innerText=res.join(' ')}
-function teclado(){
- let t=document.getElementById('teclado');t.innerHTML='';
- 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(l=>{
-  let b=document.createElement('button');b.innerText=l;
-  b.onclick=()=>{
-   b.disabled=true;
-   if(palavra.includes(l)) palavra.split('').forEach((c,i)=>{if(c===l)res[i]=l});
-   else{erros++;desenharForca();}
-   atualizarForca();
-   if(!res.includes('_')) msgVitoria(document.getElementById('msg'));
-   if(erros>=10) document.getElementById('msg').innerText='Perdeu!';
-  };
-  t.appendChild(b);
- });
-}
-atualizarForca();teclado();desenharForca();
+//////////////////////
+// FORCA COM DESENHO
+let palavras = ['HTML', 'JAVA', 'PYTHON', 'JOGO', 'COMPUTADOR', 'PROGRAMAR', 'INTERNET', 'CODIGO'];
+let palavraSecreta = palavras[Math.floor(Math.random() * palavras.length)];
+let progresso = Array(palavraSecreta.length).fill('_');
+let tentativasRestantes = 6;
+let letrasUsadas = [];
 
-// ===== PUZZLE =====
-let pu=[1,2,3,4,5,6,7,8,0];
-function desenharPuzzle(){
- let g=document.getElementById('p');g.innerHTML='';
+function desenhoForca(erros) {
+    const desenhos = [
+        `  ------
+  |    |
+  |
+  |
+  |
+  |
+=========`,
+        `  ------
+  |    |
+  |    O
+  |
+  |
+  |
+=========`,
+        `  ------
+  |    |
+  |    O
+  |    |
+  |
+  |
+=========`,
+        `  ------
+  |    |
+  |    O
+  |   /|
+  |
+  |
+=========`,
+        `  ------
+  |    |
+  |    O
+  |   /|\\
+  |
+  |
+=========`,
+        `  ------
+  |    |
+  |    O
+  |   /|\\
+  |   /
+  |
+=========`,
+        `  ------
+  |    |
+  |    O
+  |   /|\\
+  |   / \\
+  |
+=========`
+    ];
+    return desenhos[erros] || desenhos[6];
+}
+
+function atualizarForca() {
+    document.getElementById('palavra').innerHTML = progresso.map(l => `<span style="font-size:2rem;margin:0 5px">${l}</span>`).join('');
+    document.getElementById('forcaDesenho').innerHTML = `<pre>${desenhoForca(6 - tentativasRestantes)}</pre>`;
+    
+    if(progresso.join('') === palavraSecreta) {
+        document.getElementById('forcaStatus').innerHTML = '<span style="color:green;font-size:1.5rem">🎉 VOCÊ GANHOU! 🎉</span>';
+        mostrarVitoria('Jogador');
+        desabilitarBotoesForca();
+    } else if(tentativasRestantes <= 0) {
+        document.getElementById('forcaStatus').innerHTML = `<span style="color:red;font-size:1.5rem">💀 PERDEU! A palavra era ${palavraSecreta} 💀</span>`;
+        desabilitarBotoesForca();
+    }
+}
+
+function desabilitarBotoesForca() {
+    document.querySelectorAll('#letras button').forEach(b => b.disabled = true);
+}
+
+function reiniciarForca() {
+    palavraSecreta = palavras[Math.floor(Math.random() * palavras.length)];
+    progresso = Array(palavraSecreta.length).fill('_');
+    tentativasRestantes = 6;
+    letrasUsadas = [];
+    document.getElementById('forcaStatus').innerHTML = '';
+    atualizarForca();
+    forcaLetrasDiv.innerHTML = '';
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(l=>{
+        let b=document.createElement('button');
+        b.innerText=l;
+        b.style.padding='10px';
+        b.style.cursor='pointer';
+        b.style.margin='2px';
+        b.style.borderRadius='5px';
+        b.onclick=()=>{
+            if(letrasUsadas.includes(l) || progresso.join('') === palavraSecreta || tentativasRestantes <= 0) return;
+            letrasUsadas.push(l);
+            b.disabled=true;
+            if(palavraSecreta.includes(l)){
+                palavraSecreta.split('').forEach((c,i)=>{if(c===l) progresso[i]=l});
+                atualizarForca();
+            } else {
+                tentativasRestantes--;
+                atualizarForca();
+            }
+        };
+        forcaLetrasDiv.appendChild(b);
+    });
+}
+let forcaLetrasDiv = document.getElementById('letras');
+reiniciarForca();
+
+//////////////////////
+// PUZZLE CORRIGIDO
+let pu = [];
+function gerarPuzzleSolucionavel() {
+    let nums = [1,2,3,4,5,6,7,8,0];
+    do {
+        for(let i = nums.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [nums[i], nums[j]] = [nums[j], nums[i]];
+        }
+    } while(!isSolucionavel(nums));
+    return nums;
+}
+
+function isSolucionavel(nums) {
+    let inversoes = 0;
+    for(let i = 0; i < nums.length - 1; i++) {
+        if(nums[i] === 0) continue;
+        for(let j = i + 1; j < nums.length; j++) {
+            if(nums[j] !== 0 && nums[i] > nums[j]) inversoes++;
+        }
+    }
+    return inversoes % 2 === 0;
+}
+
+function verificarVitoriaPuzzle() {
+    for(let i = 0; i < 8; i++) {
+        if(pu[i] !== i+1) return false;
+    }
+    if(pu[8] !== 0) return false;
+    mostrarVitoria('Jogador');
+    document.getElementById('puzzleStatus').innerHTML = '<span style="color:green;font-size:1.5rem">🎉 PUZZLE COMPLETO! 🎉</span>';
+    return true;
+}
+
+function drawP(){
+ let g=document.getElementById('puzzleGrid');g.innerHTML='';
  pu.forEach((n,i)=>{
-  let d=document.createElement('div');d.className='peca';
-  if(n===0){d.classList.add('vazio');d.innerText='';}
-  else d.innerText=n;
+  let d=document.createElement('div');
+  d.className='celula';
+  d.innerText=n===0?'':n;
+  d.style.background=n===0?'#ddd':'#eee';
   d.onclick=()=>{
    let z=pu.indexOf(0);
    let l1=Math.floor(i/3),c1=i%3,l2=Math.floor(z/3),c2=z%3;
    if(Math.abs(l1-l2)+Math.abs(c1-c2)===1){
     [pu[i],pu[z]]=[pu[z],pu[i]];
-    desenharPuzzle();
-    if(pu.join()==='1,2,3,4,5,6,7,8,0') msgVitoria(document.getElementById('p'));
+    drawP();
+    verificarVitoriaPuzzle();
    }
   };
   g.appendChild(d);
  });
 }
-desenharPuzzle();
 
-// ===== DAMAS =====
-let bd=[],sel=null,turno='p';
+pu = gerarPuzzleSolucionavel();
+drawP();
+
+//////////////////////
+// DAMAS - Todas as peças podem capturar para trás
+let tab=[],sel=null,vez=true;
+
 function initD(){
- bd=[];
+ tab=[];
  for(let i=0;i<8;i++){
-  bd[i]=[];
+  tab[i]=[];
   for(let j=0;j<8;j++){
    if((i+j)%2){
-    if(i<3)bd[i][j]='b';
-    else if(i>4)bd[i][j]='p';
-    else bd[i][j]=null;
-   } else bd[i][j]=null;
+    if(i<3)tab[i][j]='b';
+    else if(i>4)tab[i][j]='p';
+    else tab[i][j]=null;
+   } else tab[i][j]=null;
   }
  }
+}
+
+function contarPecas() {
+    let pecasP = 0, pecasB = 0;
+    for(let i=0;i<8;i++) {
+        for(let j=0;j<8;j++) {
+            if(tab[i][j] === 'p' || tab[i][j] === 'P') pecasP++;
+            if(tab[i][j] === 'b' || tab[i][j] === 'B') pecasB++;
+        }
+    }
+    return {pecasP, pecasB};
+}
+
+function verificarVitoriaDamas() {
+    let {pecasP, pecasB} = contarPecas();
+    if(pecasP === 0) {
+        mostrarVitoria('Bot (Preto)');
+        return true;
+    }
+    if(pecasB === 0) {
+        mostrarVitoria('Você (Vermelho)');
+        return true;
+    }
+    return false;
+}
+
+function coroarDama(i,j,peca) {
+    if(peca === 'p' && i === 0) return 'P';
+    if(peca === 'b' && i === 7) return 'B';
+    return peca;
+}
+
+// Função de captura para DAMAS (captura em qualquer direção)
+function capturarDama(l, c, peca) {
+    let capturas = [];
+    let direcoes = [[-1,-1], [-1,1], [1,-1], [1,1]];
+    
+    for(let d of direcoes) {
+        let passo = 1;
+        let encontrouOponente = false;
+        let oponenteL, oponenteC;
+        
+        while(true) {
+            let nl = l + d[0] * passo;
+            let nc = c + d[1] * passo;
+            
+            if(nl < 0 || nl >= 8 || nc < 0 || nc >= 8) break;
+            
+            if(tab[nl][nc] !== null) {
+                let ehOponente = false;
+                if(peca === 'P') {
+                    ehOponente = (tab[nl][nc] === 'b' || tab[nl][nc] === 'B');
+                } else if(peca === 'B') {
+                    ehOponente = (tab[nl][nc] === 'p' || tab[nl][nc] === 'P');
+                }
+                
+                if(!encontrouOponente && ehOponente) {
+                    encontrouOponente = true;
+                    oponenteL = nl;
+                    oponenteC = nc;
+                } else {
+                    break;
+                }
+            } else if(encontrouOponente && tab[nl][nc] === null) {
+                capturas.push([nl, nc, oponenteL, oponenteC]);
+                break;
+            } else if(!encontrouOponente && tab[nl][nc] === null) {
+                passo++;
+                continue;
+            } else {
+                break;
+            }
+            passo++;
+        }
+    }
+    return capturas;
+}
+
+// Função de captura para peças normais (agora podem capturar para frente E para trás)
+function capturarNormal(l, c, peca) {
+    let capturas = [];
+    // Todas as 4 direções diagonais
+    let direcoes = [[-1,-1], [-1,1], [1,-1], [1,1]];
+    
+    for(let d of direcoes) {
+        let l1 = l + d[0];
+        let c1 = c + d[1];
+        let l2 = l + d[0] * 2;
+        let c2 = c + d[1] * 2;
+        
+        if(l2 >= 0 && l2 < 8 && c2 >= 0 && c2 < 8 && tab[l1] && tab[l1][c1] !== null) {
+            let ehOponente = false;
+            if(peca === 'p') {
+                ehOponente = (tab[l1][c1] === 'b' || tab[l1][c1] === 'B');
+            } else if(peca === 'b') {
+                ehOponente = (tab[l1][c1] === 'p' || tab[l1][c1] === 'P');
+            }
+            
+            if(ehOponente && tab[l2][c2] === null) {
+                capturas.push([l2, c2, l1, c1]);
+            }
+        }
+    }
+    return capturas;
+}
+
+function obterCapturas(l, c, peca) {
+    if(peca === 'P' || peca === 'B') {
+        return capturarDama(l, c, peca);
+    } else {
+        return capturarNormal(l, c, peca);
+    }
+}
+
+function movimentosDama(l, c, peca) {
+    let movs = [];
+    let direcoes = [[-1,-1], [-1,1], [1,-1], [1,1]];
+    
+    for(let d of direcoes) {
+        for(let passo = 1; passo <= 7; passo++) {
+            let nl = l + d[0] * passo;
+            let nc = c + d[1] * passo;
+            if(nl < 0 || nl >= 8 || nc < 0 || nc >= 8) break;
+            if(tab[nl][nc] === null) {
+                movs.push([nl, nc]);
+            } else {
+                break;
+            }
+        }
+    }
+    return movs;
+}
+
+function movimentosNormais(l, c, peca) {
+    let movs = [];
+    // Peças normais só movem para frente (não para trás)
+    if(peca === 'p') {
+        if(l-1 >= 0 && c-1 >= 0 && tab[l-1][c-1] === null) movs.push([l-1, c-1]);
+        if(l-1 >= 0 && c+1 < 8 && tab[l-1][c+1] === null) movs.push([l-1, c+1]);
+    } else if(peca === 'b') {
+        if(l+1 < 8 && c-1 >= 0 && tab[l+1][c-1] === null) movs.push([l+1, c-1]);
+        if(l+1 < 8 && c+1 < 8 && tab[l+1][c+1] === null) movs.push([l+1, c+1]);
+    }
+    return movs;
+}
+
+function obterMovimentos(l, c, peca) {
+    if(peca === 'P' || peca === 'B') {
+        return movimentosDama(l, c, peca);
+    } else {
+        return movimentosNormais(l, c, peca);
+    }
+}
+
+function existeCapturaParaJogador(tipo) {
+    for(let i = 0; i < 8; i++) {
+        for(let j = 0; j < 8; j++) {
+            let peca = tab[i][j];
+            if(peca === tipo || (tipo === 'p' && peca === 'P') || (tipo === 'b' && peca === 'B')) {
+                if(obterCapturas(i, j, peca).length > 0) return true;
+            }
+        }
+    }
+    return false;
 }
 
 function drawD(){
- let g=document.getElementById('d');g.innerHTML='';
- for(let i=0;i<8;i++)for(let j=0;j<8;j++){
-  let c=document.createElement('div');
-  c.className='casa '+((i+j)%2?'escura':'clara');
-  if(bd[i][j]==='p')c.innerText='🔴';
-  if(bd[i][j]==='b')c.innerText='⚫';
-  if(bd[i][j]==='P')c.innerText='👑';
-  if(sel&&sel[0]===i&&sel[1]===j)c.classList.add('sel');
-  c.onclick=()=>clickD(i,j);
-  g.appendChild(c);
- }
-}
-
-function virarDama(){
- for(let j=0;j<8;j++){
-  if(bd[0][j]==='p')bd[0][j]='P';
-  if(bd[7][j]==='b')bd[7][j]='B';
- }
-}
-
-function capturarBot(){
- for(let i=0;i<8;i++)for(let j=0;j<8;j++){
-  if(bd[i][j]==='b'){
-   let dirs=[[1,1],[1,-1],[-1,1],[-1,-1]];
-   for(let [dx,dy] of dirs){
-    let i1=i+dx,j1=j+dy,i2=i+2*dx,j2=j+2*dy;
-    if(bd[i1]&&bd[i2]&&bd[i1][j1]==='p'&&bd[i2][j2]==null){
-      bd[i2][j2]='b';bd[i][j]=null;bd[i1][j1]=null;return true;
-    }
-   }
+ let g=document.getElementById('damasGrid');g.innerHTML='';
+ for(let i=0;i<8;i++){
+  for(let j=0;j<8;j++){
+   let d=document.createElement('div');
+   d.className='casa '+((i+j)%2?'escura':'clara');
+   
+   let icone = document.createElement('span');
+   icone.style.fontSize = '1.5rem';
+   icone.style.display = 'flex';
+   icone.style.alignItems = 'center';
+   icone.style.justifyContent = 'center';
+   icone.style.width = '100%';
+   icone.style.height = '100%';
+   
+   if(tab[i][j]==='p') icone.innerText = '🔴';
+   if(tab[i][j]==='b') icone.innerText = '⚫';
+   if(tab[i][j]==='P') icone.innerText = '👑🔴';
+   if(tab[i][j]==='B') icone.innerText = '👑⚫';
+   
+   d.appendChild(icone);
+   if(sel && sel[0]===i && sel[1]===j)d.classList.add('selecionada');
+   d.onclick=()=>clickD(i,j);
+   g.appendChild(d);
   }
  }
- return false;
 }
 
 function clickD(i,j){
- if(turno!=='p')return;
- if(!sel){if(bd[i][j]==='p'||bd[i][j]==='P'){sel=[i,j];drawD();}}
- else{
-  let [x,y]=sel;
-  if(Math.abs(i-x)===2&&Math.abs(j-y)===2){
-   let mx=(i+x)/2,my=(j+y)/2;
-   if(bd[mx][my]==='b'){bd[i][j]=bd[x][y];bd[x][y]=null;bd[mx][my]=null;sel=null;turno='b';drawD();setTimeout(bot,400);return;}
-  }
-  if(Math.abs(i-x)===1&&Math.abs(j-y)===1&&bd[i][j]==null){
-   bd[i][j]=bd[x][y];bd[x][y]=null;sel=null;turno='b';drawD();setTimeout(bot,400);return;
-  }
-  sel=null;drawD();
+ if(!vez) return;
+ let pecaJogador = tab[i][j];
+ 
+ if(!sel){
+   if(pecaJogador === 'p' || pecaJogador === 'P'){
+       let precisaCapturar = existeCapturaParaJogador('p');
+       if(precisaCapturar){
+           if(obterCapturas(i,j,pecaJogador).length > 0) sel=[i,j];
+       } else {
+           sel=[i,j];
+       }
+   }
+   drawD(); return;
  }
- virarDama();
+ 
+ let [l,c] = sel;
+ let pecaSelecionada = tab[l][c];
+ let capturas = obterCapturas(l, c, pecaSelecionada);
+ let captura = capturas.find(x => x[0] === i && x[1] === j);
+ 
+ if(captura){
+   tab[i][j] = pecaSelecionada;
+   tab[l][c] = null;
+   tab[captura[2]][captura[3]] = null;
+   tab[i][j] = coroarDama(i,j,tab[i][j]);
+   sel = [i,j];
+   drawD();
+   if(obterCapturas(i,j,tab[i][j]).length > 0) return;
+   sel = null;
+   vez = false;
+   if(verificarVitoriaDamas()) return;
+   setTimeout(bot, 400);
+   return;
+ }
+ 
+ if(existeCapturaParaJogador('p')){ 
+   sel = null; 
+   drawD(); 
+   return; 
+ }
+ 
+ let movimentos = obterMovimentos(l, c, pecaSelecionada);
+ let movimentoValido = movimentos.some(m => m[0] === i && m[1] === j);
+ 
+ if(movimentoValido && tab[i][j] === null){
+   tab[i][j] = pecaSelecionada;
+   tab[l][c] = null;
+   tab[i][j] = coroarDama(i,j,tab[i][j]);
+   sel = null;
+   vez = false;
+   drawD();
+   if(verificarVitoriaDamas()) return;
+   setTimeout(bot, 400);
+ }
+ sel = null;
+ drawD();
 }
 
 function bot(){
- if(capturarBot()){turno='p';drawD();return;}
- for(let i=0;i<8;i++)for(let j=0;j<8;j++){
-  if(bd[i][j]==='b'){
-   let ni=i+1;
-   if(bd[ni]&&bd[ni][j+1]==null){bd[ni][j+1]='b';bd[i][j]=null;turno='p';drawD();return;}
-   if(bd[ni]&&bd[ni][j-1]==null){bd[ni][j-1]='b';bd[i][j]=null;turno='p';drawD();return;}
-  }
+ if(vez) return;
+ 
+ // Verifica capturas do bot
+ for(let i=0;i<8;i++) {
+   for(let j=0;j<8;j++){
+     let peca = tab[i][j];
+     if(peca === 'b' || peca === 'B'){
+         let capturas = obterCapturas(i, j, peca);
+         if(capturas.length > 0){
+             let m = capturas[0];
+             tab[m[0]][m[1]] = peca;
+             tab[i][j] = null;
+             tab[m[2]][m[3]] = null;
+             tab[m[0]][m[1]] = coroarDama(m[0], m[1], tab[m[0]][m[1]]);
+             vez = true;
+             drawD();
+             verificarVitoriaDamas();
+             if(obterCapturas(m[0], m[1], tab[m[0]][m[1]]).length > 0){
+                 vez = false;
+                 setTimeout(bot, 400);
+             }
+             return;
+         }
+     }
+   }
  }
- turno='p';
- virarDama();
+ 
+ // Movimentos normais do bot
+ for(let i=0;i<8;i++) {
+   for(let j=0;j<8;j++){
+     let peca = tab[i][j];
+     if(peca === 'b') {
+         let movs = movimentosNormais(i, j, peca);
+         if(movs.length > 0){
+             let m = movs[0];
+             tab[m[0]][m[1]] = peca;
+             tab[i][j] = null;
+             tab[m[0]][m[1]] = coroarDama(m[0], m[1], tab[m[0]][m[1]]);
+             vez = true;
+             drawD();
+             verificarVitoriaDamas();
+             return;
+         }
+     } else if(peca === 'B') {
+         let movs = movimentosDama(i, j, peca);
+         if(movs.length > 0){
+             let m = movs[0];
+             tab[m[0]][m[1]] = peca;
+             tab[i][j] = null;
+             vez = true;
+             drawD();
+             verificarVitoriaDamas();
+             return;
+         }
+     }
+   }
+ }
+ vez = true;
+ drawD();
 }
 
-initD();drawD();
-</script></body>
+initD();
+drawD();
+
+</script>
+
+</body>
 </html>
